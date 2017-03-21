@@ -38,7 +38,7 @@ Population population;
 void setup() {
   size(640, 360);
   f = createFont("Courier", 32, true);
-  target = "S E N D N U D E S";
+  target = "Et Tu Brute";
   popmax = 150;
   mutationRate = 0.01;
 
