@@ -1,111 +1,133 @@
-// The Nature of Code
-// Daniel Shiffman
-// http://natureofcode.com
+/*
+Objectives of this class:
+ 
+ 1) generate a sample population
+ 2) determine their interactions with the each other 
+ */
 
-// Genetic Algorithm, Evolving Shakespearei
 
-// A class to describe a population of virtual organisms
-// In this case, each organism is just an instance of a DNA object
 
 class Population {
 
-  float mutationRate;           // Mutation rate
-  DNA[] population;             // Array to hold the current population
-  ArrayList<DNA> matingPool;    // ArrayList which we will use for our "mating pool"
-  String target;                // Target phrase
-  int generations;              // Number of generations
-  boolean finished;             // Are we finished evolving?
-  int perfectScore;
+  float mutationRate;  //determines the number of children who will be mutated to introduce some degree of diversity into the population 
+  DNA[] population;    //population array to hold all the members 
+  ArrayList<DNA> mating; //inside this arraylist, the crossover will take place
+  String target;       // this is the target phrase 
+  int generations;     //number of generations that take place 
+  boolean finished;    // is the evolving done? 
+  int perfectscore;    // target score to be achieved to decide if program has succeeded in it's intended purpose 
 
-  Population(String p, float m, int num) {
-    target = p;
-    mutationRate = m;
-    population = new DNA[num];
-    for (int i = 0; i < population.length; i++) {
-      population[i] = new DNA(target.length());
+
+  Population(String target_phrase, float mutation_rate, int size_of_population)
+  {
+    target = target_phrase;
+    mutationRate  = mutation_rate; 
+    population = new DNA[size_of_population];
+
+    for (int count = 0; count < population.length; count++)
+    {
+      population[count] = new DNA(target.length());
     }
-    calcFitness();
-    matingPool = new ArrayList<DNA>();
-    finished = false;
+    calculate_FITNESS();
+    mating = new ArrayList<DNA>();
     generations = 0;
+    finished = false;
     
-    perfectScore = 1;
+    perfectscore = 1;
   }
 
-  // Fill our fitness array with a value for every member of the population
-  void calcFitness() {
-    for (int i = 0; i < population.length; i++) {
-      population[i].fitness(target);
+  //provide a fitness calculation for every member of the population 
+
+  void calculate_FITNESS()
+  {
+    for (int count = 0; count < population.length; count++)
+    {
+      population[count].fitness(target);
     }
   }
 
-  // Generate a mating pool
-  void naturalSelection() {
-    // Clear the ArrayList
-    matingPool.clear();
+  //generate a mating pool 
 
-    float maxFitness = 0;
-    for (int i = 0; i < population.length; i++) {
-      if (population[i].fitness > maxFitness) {
-        maxFitness = population[i].fitness;
-       
-      }
+  void naturalSelection()
+  {
+    //clear ArrayList
+    mating.clear();
+
+    float maxFitness = 0; 
+    for (int count = 0; count < population.length; count++)
+    {
+      if (population[count].fitness > maxFitness)
+        maxFitness = population[count].fitness;
     }
-    
-    System.out.println("maxfitness: "+ maxFitness);
 
-    // Based on fitness, each member will get added to the mating pool a certain number of times
+    //Based on fitness, each member will get added to the mating pool a certain number of times
     // a higher fitness = more entries to mating pool = more likely to be picked as a parent
     // a lower fitness = fewer entries to mating pool = less likely to be picked as a parent
-    for (int i = 0; i < population.length; i++) {
-      
-      float fitness = map(population[i].fitness,0,maxFitness,0,1);
-      System.out.println("fitness: "+fitness);
-      int n = int(fitness * 100);  // Arbitrary multiplier, we can also use monte carlo method
-      for (int j = 0; j < n; j++) {              // and pick two random numbers
-        matingPool.add(population[i]);
+
+    for (int count = 0; count < population.length; count++) {
+
+      float fitness = map(population[count].fitness, 0, maxFitness, 0, 1);
+      int n = int(fitness*100); //this is an arbitrary multiplier
+      for (int count2 = 0; count2 < n; count2++)
+      {
+        mating.add(population[count]); // the number gets added as many times as it's %fitness
       }
     }
   }
 
-  // Create a new generation
+
+  //create a new generation 
+
   void generate() {
-    // Refill the population with children from the mating pool
-    for (int i = 0; i < population.length; i++) {
-      int a = int(random(matingPool.size()));
-      int b = int(random(matingPool.size()));
-      DNA partnerA = matingPool.get(a);
-      DNA partnerB = matingPool.get(b);
-      DNA child = partnerA.crossover(partnerB);
-      child.mutate(mutationRate);
-      population[i] = child;
+    //fill the population from the mating pool with children 
+    for (int count = 0; count < population.length; count++)
+    {
+      int randomnumber = int(random(mating.size()));
+      int randomnumber_2 = int(random(mating.size())); 
+      DNA partner_A = mating.get(randomnumber); 
+      DNA partner_B = mating.get(randomnumber_2); 
+      DNA child = partner_A.crossover(partner_B); 
+      child.mutate(mutationRate); 
+      population[count] = child;
     }
-    generations++;
+
+    generations++;  //increments the generation counter... so that user can see how many times this step had to be undertaken to achieve intended purpose
   }
 
 
-  // Compute the current "most fit" member of the population
   String getBest() {
-    float worldrecord = 0.0;
-    int index = 0;
-    for (int i = 0; i < population.length; i++) {
-      if (population[i].fitness > worldrecord) {
-        index = i;
-        worldrecord = population[i].fitness;
+    int index = 0; 
+    float phrases_fitness = 0.0; 
+    for (int count = 0; count < population.length; count++)
+    {
+      if (population[count].fitness > phrases_fitness)
+      {
+        phrases_fitness = population[count].fitness;
+
+        index = count;
+        
       }
     }
     
-    if (worldrecord == perfectScore ) finished = true;
+    if (int(phrases_fitness) == perfectscore)
+        {
+          System.out.println("phrases_fitness:"+phrases_fitness);
+          finished = true; 
+        }
+
     return population[index].getPhrase();
   }
+
 
   boolean finished() {
     return finished;
   }
 
+
   int getGenerations() {
     return generations;
   }
+
 
   // Compute average fitness for the population
   float getAverageFitness() {
@@ -118,10 +140,10 @@ class Population {
 
   String allPhrases() {
     String everything = "";
-    
-    int displayLimit = min(population.length,50);
-    
-    
+
+    int displayLimit = min(population.length, 50);
+
+
     for (int i = 0; i < displayLimit; i++) {
       everything += population[i].getPhrase() + "\n";
     }
